@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>Add a Quiz Question</h1>
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.question_text.label }}<br>
+            {{ form.question_text(size=50) }}<br>
+            {% for error in form.question_text.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.answer_a.label }}<br>
+            {{ form.answer_a(size=50) }}<br>
+            {% for error in form.answer_a.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.answer_b.label }}<br>
+            {{ form.answer_b(size=50) }}<br>
+            {% for error in form.answer_b.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.answer_c.label }}<br>
+            {{ form.answer_c(size=50) }}<br>
+            {% for error in form.answer_c.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.answer_d.label }}<br>
+            {{ form.answer_d(size=50) }}<br>
+            {% for error in form.answer_d.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.correct_answer.label }}<br>
+            {{ form.correct_answer() }}<br>
+            {% for error in form.correct_answer.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
