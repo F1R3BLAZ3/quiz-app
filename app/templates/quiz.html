@@ -5,8 +5,10 @@
 {% block content %}
     <div class="container mt-4">
         <h2>Quiz</h2>
-        <form method="POST" action="{{ url_for('main.quiz') }}">
+        <div id="timer" class="mb-3">Time Remaining: <span id="time">20:00</span></div>
+        <form method="POST" action="{{ url_for('main.quiz') }}" id="quiz-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" id="timeout" name="timeout" value="0">
             
             {% if questions %}
                 {% for question in questions %}
@@ -28,4 +30,33 @@
             {% endif %}
         </form>
     </div>
+
+    <script>
+        // Get the time limit from the session (you may need to pass this to the template)
+        let timeLimit = {{ session.get('quiz_time_limit', 1200) }};
+        let timerDisplay = document.getElementById('time');  // Change to target the time span directly
+        
+        function startTimer(duration) {
+            let timer = duration, minutes, seconds;
+            let interval = setInterval(function () {
+                minutes = parseInt(timer / 60, 10);
+                seconds = parseInt(timer % 60, 10);
+                seconds = seconds < 10 ? "0" + seconds : seconds;
+
+                timerDisplay.textContent = minutes + ":" + seconds;
+
+                if (--timer < 0) {
+                    clearInterval(interval);  // Stop the timer
+                    document.getElementById('timeout').value = "1";  // Mark the timeout
+                    alert('Time is up! Submitting your quiz.');
+                    document.getElementById('quiz-form').submit();  // Submit the quiz form
+                }
+            }, 1000);
+        }
+
+    
+        window.onload = function () {
+            startTimer(timeLimit);
+        };
+    </script>    
 {% endblock %}

@@ -6,3 +6,4 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SESSION_TYPE = 'filesystem'
     CSRF_ENABLED = True
+    QUIZ_TIME_LIMIT = 20 * 60  # Time limit in seconds (20 minutes)

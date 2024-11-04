@@ -1,11 +1,13 @@
 from flask import render_template, redirect, url_for, flash, session, request
 from flask_login import login_user, logout_user, login_required, current_user
+from flask import Blueprint
+from flask import current_app
 from app import db, login_manager, csrf
 from app.forms import RegistrationForm, LoginForm, QuestionForm
 from app.models import User, QuizQuestion, QuizResult
 from app.services.quiz_service import get_random_questions
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask import Blueprint
+from time import time
 import json
 
 # Create a blueprint for the routes
@@ -64,6 +66,9 @@ def dashboard():
 @main.route('/quiz', methods=['GET', 'POST'])
 @login_required
 def quiz():
+    # Set the time limit in the session based on the config
+    session['quiz_time_limit'] = current_app.config.get('QUIZ_TIME_LIMIT', 1200)
+
     def get_correct_answer(question_id):
         question = QuizQuestion.query.get(question_id)
         return question.correct_answer if question else None
@@ -71,6 +76,14 @@ def quiz():
     # Determine if this is a new quiz or a form submission
     if request.method == 'POST':
         print("This is the POST section of the quiz route")
+
+        # Check if the quiz is timed out
+        is_timeout = request.form.get('timeout') == "1"  # Check if timeout occurred
+        start_time = session.get('quiz_start_time')
+        if not is_timeout and start_time and (time() - start_time > session['quiz_time_limit']):
+            flash('Your time is up! Submitting the quiz.', 'warning')
+            return redirect(url_for('main.results'))
+        
         user_answers = {}
         
         # Retrieve question IDs from the session
@@ -80,13 +93,13 @@ def quiz():
         print(f"Form data: {request.form}")  # Debug line
         print(f"Session quiz questions during POST: {question_ids}") # Debug line
 
-        # Calculate the score based on submitted answers
+        # Collect answers; treat unanswered questions as None if timeout
         for question_id in question_ids:
             selected_answer = request.form.get(f'answer_{question_id}')
-            print(f"Question ID {question_id}, Selected Answer: {selected_answer}")  # Debug line
-            user_answers[question_id] = selected_answer or 'None'  # Store user's answer
+            user_answers[question_id] = selected_answer or 'None'  # Default to 'None' if unanswered
 
-        score = sum(1 for question_id in question_ids if user_answers[question_id] == get_correct_answer(question_id))  # Use a function to get the correct answer
+        # Calculate score for the answers given so far
+        score = sum(1 for question_id in question_ids if user_answers[question_id] == get_correct_answer(question_id))
 
         # Check if all questions were answered
         if len(user_answers) != len(question_ids):
@@ -112,6 +125,7 @@ def quiz():
 
     # Store question IDs in session for later reference
     session['quiz_questions'] = [question.id for question in questions]
+    session['quiz_start_time'] = time()  # Set the starting time when the quiz begins
 
     # Debugging: print generated question IDs
     print("Generated Questions IDs (GET):", session['quiz_questions'])
