@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, session, request
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db, login_manager, csrf
 from app.forms import RegistrationForm, LoginForm, QuestionForm
@@ -61,47 +61,88 @@ def logout():
 def dashboard():
     return render_template('dashboard.html', user=current_user)
 
-# Quiz route
 @main.route('/quiz', methods=['GET', 'POST'])
 @login_required
 def quiz():
-    questions = get_random_questions()
-    score = 0  # Initialize score outside of the form validation check
+    def get_correct_answer(question_id):
+        question = QuizQuestion.query.get(question_id)
+        return question.correct_answer if question else None
 
+    # Determine if this is a new quiz or a form submission
     if request.method == 'POST':
+        print("This is the POST section of the quiz route")
         user_answers = {}
-        print("Form submitted.")
-        for question in questions:
-            selected_answer = request.form.get(f'answer_{question.id}')
-            user_answers[question.id] = selected_answer or 'None'  # Store user's answer
+        
+        # Retrieve question IDs from the session
+        question_ids = session.get('quiz_questions', [])
 
-            if selected_answer and selected_answer == question.correct_answer:
-                score += 1  # Increment score for each correct answer
+        # Debugging: print form data
+        print(f"Form data: {request.form}")  # Debug line
+        print(f"Session quiz questions during POST: {question_ids}") # Debug line
+
+        # Calculate the score based on submitted answers
+        for question_id in question_ids:
+            selected_answer = request.form.get(f'answer_{question_id}')
+            print(f"Question ID {question_id}, Selected Answer: {selected_answer}")  # Debug line
+            user_answers[question_id] = selected_answer or 'None'  # Store user's answer
+
+        score = sum(1 for question_id in question_ids if user_answers[question_id] == get_correct_answer(question_id))  # Use a function to get the correct answer
+
+        # Check if all questions were answered
+        if len(user_answers) != len(question_ids):
+            flash('Please answer all questions before submitting the quiz.', 'warning')
+            return redirect(url_for('main.quiz'))  # Redirect back to quiz if not all answered
 
         # Save the quiz result to the database
-        quiz_result = QuizResult(user_id=current_user.id, score=score, user_answers=json.dumps(user_answers))  # Store user answers as JSON
+        quiz_result = QuizResult(
+            user_id=current_user.id, 
+            score=score, 
+            user_answers=json.dumps(user_answers),
+            question_ids=json.dumps(question_ids)
+        )
         db.session.add(quiz_result)
         db.session.commit()
 
-        flash(f'You scored {score} out of {len(questions)}', 'success')
+        flash(f'You scored {score} out of {len(question_ids)}', 'success')
+        session.pop('quiz_questions', None)  # Clear session data after processing
         return redirect(url_for('main.results'))  # Redirect to the results page after submission
 
-    return render_template('quiz.html', questions=questions)
+    # This part handles the GET request and generates new questions
+    print("This is the GET section of the quiz route")
+    questions = get_random_questions()
 
+    # Store question IDs in session for later reference
+    session['quiz_questions'] = [question.id for question in questions]
+
+    # Debugging: print generated question IDs
+    print("Generated Questions IDs (GET):", session['quiz_questions'])
+
+    return render_template('quiz.html', questions=questions)
 
 # Results route
 @main.route('/results')
 @login_required
 def results():
-    questions_count = len(get_random_questions())
     latest_result = QuizResult.query.filter_by(user_id=current_user.id).order_by(QuizResult.timestamp.desc()).first()
+    if not latest_result:
+        flash("No quiz results found.", "warning")
+        return redirect(url_for('main.dashboard'))
 
-    user_answers = json.loads(latest_result.user_answers) if latest_result else {}
+    user_answers = json.loads(latest_result.user_answers)
+    question_ids = json.loads(latest_result.question_ids)
 
-    # Fetch the questions for feedback
-    questions = QuizQuestion.query.filter(QuizQuestion.id.in_(user_answers.keys())).all()
+    # Fetch the exact questions that were used in the quiz
+    questions = QuizQuestion.query.filter(QuizQuestion.id.in_(question_ids)).all()
+    questions_count = len(question_ids)
     
-    return render_template('results.html', user=current_user, result=latest_result, questions_count=questions_count, user_answers=user_answers, questions=questions)
+    return render_template(
+        'results.html', 
+        user=current_user, 
+        result=latest_result, 
+        questions_count=questions_count, 
+        user_answers=user_answers, 
+        questions=questions
+    )
 
 # Question adding route
 @main.route('/add_question', methods=['GET', 'POST'])

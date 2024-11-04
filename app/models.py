@@ -42,3 +42,4 @@ class QuizResult(db.Model):
     score = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
     user_answers = db.Column(db.JSON, nullable=False)
+    question_ids = db.Column(db.JSON, nullable=False) 

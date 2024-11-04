@@ -7,21 +7,20 @@
     <form method="POST" action="{{ url_for('main.quiz') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         
-        {% for question in questions %}
-            <div>
-                <p>{{ loop.index }}. {{ question.question_text }}</p>
-                {% for option in question.options %}
-                    <label>
-                        <input type="radio" name="answer_{{ question.id }}" value="{{ option.id }}"> {{ option.text }}
-                    </label><br>
-                {% endfor %}
-            </div>
-        {% endfor %}
-        
-        <button type="submit">Submit Quiz</button>
+        {% if questions %}
+            {% for question in questions %}
+                <div>
+                    <p>{{ loop.index }}. {{ question.question_text }}</p>
+                    {% for option in question.options %}
+                        <label>
+                            <input type="radio" name="answer_{{ question.id }}" value="{{ option.id }}"> {{ option.text }}
+                        </label><br>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit">Submit Quiz</button>
+        {% else %}
+            <p>No questions available.</p>
+        {% endif %}
     </form>
-
-    {% if not questions %}
-        <p>No questions available.</p>
-    {% endif %}
 {% endblock %}
