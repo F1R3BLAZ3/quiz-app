@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}View Questions{% endblock %}
+
+{% block content %}
+    <h1>All Quiz Questions</h1>
+    
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Question Text</th>
+                <th>Options</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for question in questions %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td><strong>{{ question.question_text }}</strong></td>
+                    <td>
+                        <ul>
+                            <li>{{ question.answer_a }}</li>
+                            <li>{{ question.answer_b }}</li>
+                            <li>{{ question.answer_c }}</li>
+                            <li>{{ question.answer_d }}</li>
+                        </ul>
+                    </td>
+                    <td>
+                        <form method="POST" action="{{ url_for('main.delete_question', question_id=question.id) }}" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this question?');">Delete</button>
+                        </form>
+                        <a href="{{ url_for('main.edit_question', question_id=question.id) }}" class="btn btn-warning btn-sm">Edit</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No questions available.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div>
+        <a href="{{ url_for('main.add_question') }}" class="btn btn-primary">Add New Question</a>
+    </div>
+{% endblock %}

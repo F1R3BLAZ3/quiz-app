@@ -25,4 +25,4 @@ class QuestionForm(FlaskForm):
         ('C', 'Answer C'),
         ('D', 'Answer D')
     ], validators=[DataRequired()])
-    submit = SubmitField('Add Question')
+    submit = SubmitField('Save Question')

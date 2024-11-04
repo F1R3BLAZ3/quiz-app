@@ -143,7 +143,7 @@ def results():
         questions=questions
     )
 
-# Question adding route
+# Add question route
 @main.route('/add_question', methods=['GET', 'POST'])
 def add_question():
     form = QuestionForm()
@@ -162,6 +162,38 @@ def add_question():
         return redirect(url_for('main.add_question'))  # Redirect to the same page after submission
 
     return render_template('add_question.html', form=form)
+
+# Display question route
+@main.route('/questions', methods=['GET'])
+@login_required
+def view_questions():
+    questions = QuizQuestion.query.all()
+    return render_template('view_questions.html', questions=questions)
+
+# Delete question route
+@main.route('/delete_question/<int:question_id>', methods=['POST'])
+@login_required
+def delete_question(question_id):
+    question = QuizQuestion.query.get_or_404(question_id)
+    db.session.delete(question)
+    db.session.commit()
+    flash('Question deleted successfully.', 'success')
+    return redirect(url_for('main.view_questions'))
+
+# Edit question route
+@main.route('/edit_question/<int:question_id>', methods=['GET', 'POST'])
+@login_required
+def edit_question(question_id):
+    question = QuizQuestion.query.get_or_404(question_id)  # Fetch the question by ID
+    form = QuestionForm(obj=question)  # Populate form with the existing question data
+
+    if form.validate_on_submit():
+        form.populate_obj(question)  # Update the question object with form data
+        db.session.commit()  # Commit changes to the database
+        flash('Question updated successfully!', 'success')
+        return redirect(url_for('main.view_questions'))  # Redirect to the view questions page
+
+    return render_template('edit_question.html', form=form, question=question)
 
 # Register the blueprint in the application factory
 def register_routes(app):
