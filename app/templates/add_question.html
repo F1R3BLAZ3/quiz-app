@@ -1,50 +1,55 @@
 {% extends "base.html" %}
+
+{% block title %}Add a Quiz Question{% endblock %}
+
 {% block content %}
-    <h1>Add a Quiz Question</h1>
-    <form method="POST" action="">
-        {{ form.hidden_tag() }}
-        <p>
-            {{ form.question_text.label }}<br>
-            {{ form.question_text(size=50) }}<br>
-            {% for error in form.question_text.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.answer_a.label }}<br>
-            {{ form.answer_a(size=50) }}<br>
-            {% for error in form.answer_a.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.answer_b.label }}<br>
-            {{ form.answer_b(size=50) }}<br>
-            {% for error in form.answer_b.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.answer_c.label }}<br>
-            {{ form.answer_c(size=50) }}<br>
-            {% for error in form.answer_c.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.answer_d.label }}<br>
-            {{ form.answer_d(size=50) }}<br>
-            {% for error in form.answer_d.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>
-            {{ form.correct_answer.label }}<br>
-            {{ form.correct_answer() }}<br>
-            {% for error in form.correct_answer.errors %}
-                <span style="color: red;">[{{ error }}]</span>
-            {% endfor %}
-        </p>
-        <p>{{ form.submit() }}</p>
-    </form>
+    <div class="container mt-4">
+        <h1>Add a Quiz Question</h1>
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                <label for="question_text">{{ form.question_text.label }}</label>
+                {{ form.question_text(class="form-control", size=50) }}
+                {% for error in form.question_text.errors %}
+                    <span class="text-danger">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label for="answer_a">{{ form.answer_a.label }}</label>
+                {{ form.answer_a(class="form-control", size=50) }}
+                {% for error in form.answer_a.errors %}
+                    <span class="text-danger">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label for="answer_b">{{ form.answer_b.label }}</label>
+                {{ form.answer_b(class="form-control", size=50) }}
+                {% for error in form.answer_b.errors %}
+                    <span class="text-danger">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label for="answer_c">{{ form.answer_c.label }}</label>
+                {{ form.answer_c(class="form-control", size=50) }}
+                {% for error in form.answer_c.errors %}
+                    <span class="text-danger">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label for="answer_d">{{ form.answer_d.label }}</label>
+                {{ form.answer_d(class="form-control", size=50) }}
+                {% for error in form.answer_d.errors %}
+                    <span class="text-danger">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                <label for="correct_answer">{{ form.correct_answer.label }}</label>
+                {{ form.correct_answer(class="form-control") }}
+                {% for error in form.correct_answer.errors %}
+                    <span class="text-danger">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <button type="submit" class="btn btn-primary me-2 mt-2">{{ form.submit() }}</button>
+        </form>
+    </div>
 {% endblock %}

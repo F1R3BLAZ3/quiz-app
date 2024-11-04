@@ -3,24 +3,29 @@
 {% block title %}Quiz{% endblock %}
 
 {% block content %}
-    <h2>Quiz</h2>
-    <form method="POST" action="{{ url_for('main.quiz') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        
-        {% if questions %}
-            {% for question in questions %}
-                <div>
-                    <p>{{ loop.index }}. {{ question.question_text }}</p>
-                    {% for option in question.options %}
-                        <label>
-                            <input type="radio" name="answer_{{ question.id }}" value="{{ option.id }}"> {{ option.text }}
-                        </label><br>
-                    {% endfor %}
-                </div>
-            {% endfor %}
-            <button type="submit">Submit Quiz</button>
-        {% else %}
-            <p>No questions available.</p>
-        {% endif %}
-    </form>
+    <div class="container mt-4">
+        <h2>Quiz</h2>
+        <form method="POST" action="{{ url_for('main.quiz') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            {% if questions %}
+                {% for question in questions %}
+                    <div class="mb-3">
+                        <p><strong>{{ loop.index }}. {{ question.question_text }}</strong></p>
+                        {% for option in question.options %}
+                            <div class="input-group mb-2">
+                                <div class="input-group-text" style="background-color: #D3D3D3">
+                                    <input class="form-check-input mt-0" type="radio" name="answer_{{ question.id }}" value="{{ option.id }}">
+                                </div>
+                                <span class="form-control">{{ option.text }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-success">Submit Quiz</button>
+            {% else %}
+                <p>No questions available.</p>
+            {% endif %}
+        </form>
+    </div>
 {% endblock %}

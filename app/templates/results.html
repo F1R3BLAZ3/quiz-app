@@ -3,22 +3,24 @@
 {% block title %}Quiz Results{% endblock %}
 
 {% block content %}
-    <h1>Quiz Results</h1>
-    <h2>You scored {{ result.score }} out of {{ questions_count }}.</h2> <!-- Only show it here -->
+    <div class="container mt-4">
+        <h1>Quiz Results</h1>
+        <h2>You scored {{ result.score }} out of {{ questions_count }}.</h2>
 
-    <h2>Question Analysis</h2>
-    <ul>
-        {% for question in questions %}
-            <li>
-                <strong>Question:</strong> {{ question.question_text }}<br>
-                <strong>Your Answer:</strong> {{ question.user_answer_text(user_answers[question.id|string]) }}<br>
-                <strong>Correct Answer:</strong> {{ question.correct_answer_text }}<br>
-            </li>
-        {% endfor %}
-    </ul>
+        <h2>Question Analysis</h2>
+        <ul class="list-group mb-4">
+            {% for question in questions %}
+                <li class="list-group-item">
+                    <strong>Question:</strong> {{ question.question_text }}<br>
+                    <strong>Your Answer:</strong> {{ question.user_answer_text(user_answers[question.id|string]) }}<br>
+                    <strong>Correct Answer:</strong> {{ question.correct_answer_text }}<br>
+                </li>
+            {% endfor %}
+        </ul>
 
-    <div class="redirect-links">
-        <a href="{{ url_for('main.dashboard') }}">Back to Dashboard</a>
-        <a href="{{ url_for('main.quiz') }}" class="btn btn-primary">Retake Quiz</a>
+        <div class="redirect-links">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+            <a href="{{ url_for('main.quiz') }}" class="btn btn-primary">Retake Quiz</a>
+        </div>
     </div>
 {% endblock %}
