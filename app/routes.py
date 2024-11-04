@@ -103,7 +103,6 @@ def quiz():
         db.session.add(quiz_result)
         db.session.commit()
 
-        flash(f'You scored {score} out of {len(question_ids)}', 'success')
         session.pop('quiz_questions', None)  # Clear session data after processing
         return redirect(url_for('main.results'))  # Redirect to the results page after submission
 
