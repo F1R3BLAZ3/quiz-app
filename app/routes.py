@@ -28,6 +28,13 @@ def home():
 def register():
     form = RegistrationForm()
     if form.validate_on_submit():
+        # Check if the username already exists
+        existing_user = User.query.filter_by(username=form.username.data).first()
+        if existing_user:
+            flash('Username already exists. Please choose a different one.', 'danger')
+            return render_template('register.html', form=form)
+
+        # Proceed to create the new user
         hashed_password = generate_password_hash(form.password.data)
         user = User(username=form.username.data, password=hashed_password)
         db.session.add(user)
