@@ -1,6 +1,6 @@
 from app import db
 from flask_login import UserMixin
-from datetime import datetime
+import json
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,5 +41,7 @@ class QuizResult(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     score = db.Column(db.Integer, nullable=False)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
-    user_answers = db.Column(db.JSON, nullable=False)
-    question_ids = db.Column(db.JSON, nullable=False) 
+    total_questions = db.Column(db.Integer)
+    # Set default to an empty JSON array for user_answers and question_ids
+    user_answers = db.Column(db.JSON, nullable=False, default=json.dumps([]))
+    question_ids = db.Column(db.JSON, nullable=False, default=json.dumps([]))

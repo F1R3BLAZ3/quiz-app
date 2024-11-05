@@ -33,7 +33,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash('Account created!', 'success')
-        return redirect(url_for('main.login'))  # Use 'main.login' to refer to the blueprint
+        return redirect(url_for('main.login'))  
     return render_template('register.html', form=form)
 
 # Login route
@@ -45,7 +45,7 @@ def login():
         if user and check_password_hash(user.password, form.password.data):
             login_user(user)
             flash('Login successful!', 'success')
-            return redirect(url_for('main.dashboard'))  # Use 'main.dashboard' to refer to the blueprint
+            return redirect(url_for('main.dashboard'))  
         else:
             flash('Login failed. Check username and password.', 'danger')
     return render_template('login.html', form=form)
@@ -55,7 +55,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('main.home'))  # Use 'main.home' to refer to the blueprint
+    return redirect(url_for('main.home'))
 
 # Dashboard route
 @main.route('/dashboard')
@@ -63,102 +63,93 @@ def logout():
 def dashboard():
     return render_template('dashboard.html', user=current_user)
 
+# Quiz route
 @main.route('/quiz', methods=['GET', 'POST'])
 @login_required
 def quiz():
-    # Set the time limit in the session based on the config
     session['quiz_time_limit'] = current_app.config.get('QUIZ_TIME_LIMIT', 1200)
 
     def get_correct_answer(question_id):
         question = QuizQuestion.query.get(question_id)
         return question.correct_answer if question else None
 
-    # Determine if this is a new quiz or a form submission
     if request.method == 'POST':
-        print("This is the POST section of the quiz route")
-
-        # Check if the quiz is timed out
-        is_timeout = request.form.get('timeout') == "1"  # Check if timeout occurred
+        is_timeout = request.form.get('timeout') == "1"
         start_time = session.get('quiz_start_time')
         if not is_timeout and start_time and (time() - start_time > session['quiz_time_limit']):
             flash('Your time is up! Submitting the quiz.', 'warning')
             return redirect(url_for('main.results'))
         
         user_answers = {}
-        
-        # Retrieve question IDs from the session
         question_ids = session.get('quiz_questions', [])
 
-        # Debugging: print form data
-        print(f"Form data: {request.form}")  # Debug line
-        print(f"Session quiz questions during POST: {question_ids}") # Debug line
-
-        # Collect answers; treat unanswered questions as None if timeout
         for question_id in question_ids:
             selected_answer = request.form.get(f'answer_{question_id}')
-            user_answers[question_id] = selected_answer or 'None'  # Default to 'None' if unanswered
+            user_answers[question_id] = selected_answer or 'None'  
 
-        # Calculate score for the answers given so far
         score = sum(1 for question_id in question_ids if user_answers[question_id] == get_correct_answer(question_id))
 
-        # Check if all questions were answered
         if len(user_answers) != len(question_ids):
             flash('Please answer all questions before submitting the quiz.', 'warning')
-            return redirect(url_for('main.quiz'))  # Redirect back to quiz if not all answered
+            return redirect(url_for('main.quiz'))  
 
-        # Save the quiz result to the database
         quiz_result = QuizResult(
-            user_id=current_user.id, 
-            score=score, 
+            user_id=current_user.id,
+            score=score,
+            total_questions=len(question_ids),
             user_answers=json.dumps(user_answers),
             question_ids=json.dumps(question_ids)
         )
         db.session.add(quiz_result)
         db.session.commit()
 
-        session.pop('quiz_questions', None)  # Clear session data after processing
-        return redirect(url_for('main.results'))  # Redirect to the results page after submission
+        session.pop('quiz_questions', None)  
+        return redirect(url_for('main.results'))  
 
-    # This part handles the GET request and generates new questions
-    print("This is the GET section of the quiz route")
     questions = get_random_questions()
-
-    # Store question IDs in session for later reference
     session['quiz_questions'] = [question.id for question in questions]
-    session['quiz_start_time'] = time()  # Set the starting time when the quiz begins
-
-    # Debugging: print generated question IDs
-    print("Generated Questions IDs (GET):", session['quiz_questions'])
+    session['quiz_start_time'] = time()  
 
     return render_template('quiz.html', questions=questions)
 
-# Results route
 @main.route('/results')
 @login_required
 def results():
-    latest_result = QuizResult.query.filter_by(user_id=current_user.id).order_by(QuizResult.timestamp.desc()).first()
-    if not latest_result:
+    result_id = request.args.get("result_id")
+    if result_id:
+        result = QuizResult.query.filter_by(id=result_id, user_id=current_user.id).first()
+    else:
+        result = QuizResult.query.filter_by(user_id=current_user.id).order_by(QuizResult.timestamp.desc()).first()
+
+    if not result:
         flash("No quiz results found.", "warning")
         return redirect(url_for('main.dashboard'))
 
-    user_answers = json.loads(latest_result.user_answers)
-    question_ids = json.loads(latest_result.question_ids)
+    user_answers = json.loads(result.user_answers)
+    question_ids = json.loads(result.question_ids)
 
-    # Fetch the exact questions that were used in the quiz
+    # Fetch the questions attempted in this specific quiz
     questions = QuizQuestion.query.filter(QuizQuestion.id.in_(question_ids)).all()
-    questions_count = len(question_ids)
-    
+
     return render_template(
-        'results.html', 
-        user=current_user, 
-        result=latest_result, 
-        questions_count=questions_count, 
-        user_answers=user_answers, 
+        'results.html',
+        user=current_user,
+        result=result,
+        questions_count=result.total_questions,
+        user_answers=user_answers,
         questions=questions
     )
 
+# Results history route
+@main.route('/results_history')
+@login_required
+def results_history():
+    results = QuizResult.query.filter_by(user_id=current_user.id).order_by(QuizResult.timestamp.desc()).all()
+    return render_template('results_history.html', results=results)
+
 # Add question route
 @main.route('/add_question', methods=['GET', 'POST'])
+@login_required
 def add_question():
     form = QuestionForm()
     if form.validate_on_submit():
@@ -173,7 +164,7 @@ def add_question():
         db.session.add(question)
         db.session.commit()
         flash('Question added successfully!', 'success')
-        return redirect(url_for('main.add_question'))  # Redirect to the same page after submission
+        return redirect(url_for('main.add_question'))  
 
     return render_template('add_question.html', form=form)
 
@@ -198,17 +189,16 @@ def delete_question(question_id):
 @main.route('/edit_question/<int:question_id>', methods=['GET', 'POST'])
 @login_required
 def edit_question(question_id):
-    question = QuizQuestion.query.get_or_404(question_id)  # Fetch the question by ID
-    form = QuestionForm(obj=question)  # Populate form with the existing question data
+    question = QuizQuestion.query.get_or_404(question_id)
+    form = QuestionForm(obj=question)
 
     if form.validate_on_submit():
-        form.populate_obj(question)  # Update the question object with form data
-        db.session.commit()  # Commit changes to the database
+        form.populate_obj(question)
+        db.session.commit()
         flash('Question updated successfully!', 'success')
-        return redirect(url_for('main.view_questions'))  # Redirect to the view questions page
+        return redirect(url_for('main.view_questions'))  
 
     return render_template('edit_question.html', form=form, question=question)
 
-# Register the blueprint in the application factory
 def register_routes(app):
     app.register_blueprint(main)

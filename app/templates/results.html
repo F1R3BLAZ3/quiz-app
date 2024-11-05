@@ -5,6 +5,7 @@
 {% block content %}
     <div class="container mt-4">
         <h1>Quiz Results</h1>
+        <p><strong>Quiz Taken On:</strong> {{ result.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
         <h2>You scored {{ result.score }} out of {{ questions_count }}.</h2>
 
         <h2>Question Analysis</h2>
