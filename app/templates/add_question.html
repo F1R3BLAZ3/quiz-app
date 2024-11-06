@@ -5,8 +5,11 @@
 {% block content %}
     <div class="container mt-4">
         <h1>Add a Quiz Question</h1>
+        <!-- Form for adding a new quiz question -->
         <form method="POST" action="">
-            {{ form.hidden_tag() }}
+            {{ form.hidden_tag() }} <!-- CSRF token for form security -->
+
+            <!-- Question Text Field -->
             <div class="mb-3">
                 <label for="question_text">{{ form.question_text.label }}</label>
                 {{ form.question_text(class="form-control", size=50) }}
@@ -14,6 +17,8 @@
                     <span class="text-danger">[{{ error }}]</span>
                 {% endfor %}
             </div>
+
+            <!-- Answer A Field -->
             <div class="mb-3">
                 <label for="answer_a">{{ form.answer_a.label }}</label>
                 {{ form.answer_a(class="form-control", size=50) }}
@@ -21,6 +26,8 @@
                     <span class="text-danger">[{{ error }}]</span>
                 {% endfor %}
             </div>
+
+            <!-- Answer B Field -->
             <div class="mb-3">
                 <label for="answer_b">{{ form.answer_b.label }}</label>
                 {{ form.answer_b(class="form-control", size=50) }}
@@ -28,6 +35,8 @@
                     <span class="text-danger">[{{ error }}]</span>
                 {% endfor %}
             </div>
+
+            <!-- Answer C Field -->
             <div class="mb-3">
                 <label for="answer_c">{{ form.answer_c.label }}</label>
                 {{ form.answer_c(class="form-control", size=50) }}
@@ -35,6 +44,8 @@
                     <span class="text-danger">[{{ error }}]</span>
                 {% endfor %}
             </div>
+
+            <!-- Answer D Field -->
             <div class="mb-3">
                 <label for="answer_d">{{ form.answer_d.label }}</label>
                 {{ form.answer_d(class="form-control", size=50) }}
@@ -42,6 +53,8 @@
                     <span class="text-danger">[{{ error }}]</span>
                 {% endfor %}
             </div>
+
+            <!-- Correct Answer Selector -->
             <div class="mb-3">
                 <label for="correct_answer">{{ form.correct_answer.label }}</label>
                 {{ form.correct_answer(class="form-control") }}
@@ -49,7 +62,11 @@
                     <span class="text-danger">[{{ error }}]</span>
                 {% endfor %}
             </div>
-            <button type="submit" class="btn btn-primary me-2 mt-2">{{ form.submit() }}</button>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary me-2 mt-2">
+                {{ form.submit() }}
+            </button>
         </form>
     </div>
 {% endblock %}

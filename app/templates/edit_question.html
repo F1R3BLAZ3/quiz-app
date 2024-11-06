@@ -3,35 +3,53 @@
 {% block title %}Edit Question{% endblock %}
 
 {% block content %}
-    <h2>Edit Question</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        <div class="form-group">
-            {{ form.question_text.label }} 
-            {{ form.question_text(class="form-control") }} 
-        </div>
-        <div class="form-group">
-            {{ form.answer_a.label }} 
-            {{ form.answer_a(class="form-control") }} 
-        </div>
-        <div class="form-group">
-            {{ form.answer_b.label }} 
-            {{ form.answer_b(class="form-control") }} 
-        </div>
-        <div class="form-group">
-            {{ form.answer_c.label }} 
-            {{ form.answer_c(class="form-control") }} 
-        </div>
-        <div class="form-group">
-            {{ form.answer_d.label }} 
-            {{ form.answer_d(class="form-control") }} 
-        </div>
-        <div class="form-group">
-            {{ form.correct_answer.label }} 
-            {{ form.correct_answer(class="form-control") }} 
-        </div>
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-        </div>
-    </form>
+    <div class="container mt-4">
+        <h2>Edit Question</h2>
+        
+        <!-- Edit Question Form -->
+        <form method="POST">
+            {{ form.hidden_tag() }}
+
+            <!-- Question Text Input -->
+            <div class="form-group mb-3">
+                {{ form.question_text.label }}
+                {{ form.question_text(class="form-control") }}
+            </div>
+
+            <!-- Answer A Input -->
+            <div class="form-group mb-3">
+                {{ form.answer_a.label }}
+                {{ form.answer_a(class="form-control") }}
+            </div>
+
+            <!-- Answer B Input -->
+            <div class="form-group mb-3">
+                {{ form.answer_b.label }}
+                {{ form.answer_b(class="form-control") }}
+            </div>
+
+            <!-- Answer C Input -->
+            <div class="form-group mb-3">
+                {{ form.answer_c.label }}
+                {{ form.answer_c(class="form-control") }}
+            </div>
+
+            <!-- Answer D Input -->
+            <div class="form-group mb-3">
+                {{ form.answer_d.label }}
+                {{ form.answer_d(class="form-control") }}
+            </div>
+
+            <!-- Correct Answer Selection -->
+            <div class="form-group mb-3">
+                {{ form.correct_answer.label }}
+                {{ form.correct_answer(class="form-control") }}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary mt-2">Save Changes</button>
+            </div>
+        </form>
+    </div>
 {% endblock %}

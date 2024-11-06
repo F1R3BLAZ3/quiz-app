@@ -5,56 +5,75 @@
 {% block content %}
     <div class="container mt-4">
         <h2>Quiz</h2>
+        
+        <!-- Display Timer for the quiz -->
         <div id="timer" class="mb-3">Time Remaining: <span id="time">20:00</span></div>
+        
+        <!-- Quiz Form -->
         <form method="POST" action="{{ url_for('main.quiz') }}" id="quiz-form">
+            <!-- CSRF Token for form protection -->
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" id="timeout" name="timeout" value="0">
             
+            <!-- Check if there are questions to display -->
             {% if questions %}
                 {% for question in questions %}
                     <div class="mb-3">
+                        <!-- Display the question text with its index -->
                         <p><strong>{{ loop.index }}. {{ question.question_text }}</strong></p>
+                        
+                        <!-- Loop through the options for each question -->
                         {% for option in question.options %}
                             <div class="input-group mb-2">
                                 <div class="input-group-text" style="background-color: #D3D3D3">
+                                    <!-- Radio button for selecting answer -->
                                     <input class="form-check-input mt-0" type="radio" name="answer_{{ question.id }}" value="{{ option.id }}">
                                 </div>
+                                <!-- Display the option text -->
                                 <span class="form-control">{{ option.text }}</span>
                             </div>
                         {% endfor %}
                     </div>
                 {% endfor %}
+                
+                <!-- Submit button for the quiz -->
                 <button type="submit" class="btn btn-success">Submit Quiz</button>
             {% else %}
-                <p>No questions available.</p>
+                <p>No questions available.</p> <!-- Message if no questions exist -->
             {% endif %}
         </form>
     </div>
 
     <script>
-        // Get the time limit from the session (you may need to pass this to the template)
+        // Set the time limit for the quiz (default is 20 minutes)
         let timeLimit = {{ session.get('quiz_time_limit', 1200) }};
-        let timerDisplay = document.getElementById('time');  // Change to target the time span directly
+        let timerDisplay = document.getElementById('time');  // Target the time span directly
         
+        // Function to start and manage the countdown timer
         function startTimer(duration) {
             let timer = duration, minutes, seconds;
+            
+            // Interval to update timer every second
             let interval = setInterval(function () {
+                // Calculate minutes and seconds
                 minutes = parseInt(timer / 60, 10);
                 seconds = parseInt(timer % 60, 10);
-                seconds = seconds < 10 ? "0" + seconds : seconds;
+                seconds = seconds < 10 ? "0" + seconds : seconds; // Pad seconds with leading zero
 
+                // Update the timer display
                 timerDisplay.textContent = minutes + ":" + seconds;
 
+                // Check if timer has reached zero
                 if (--timer < 0) {
                     clearInterval(interval);  // Stop the timer
                     document.getElementById('timeout').value = "1";  // Mark the timeout
-                    alert('Time is up! Submitting your quiz.');
-                    document.getElementById('quiz-form').submit();  // Submit the quiz form
+                    alert('Time is up! Submitting your quiz.'); // Notify user of timeout
+                    document.getElementById('quiz-form').submit();  // Automatically submit the quiz form
                 }
-            }, 1000);
+            }, 1000); // 1000 milliseconds = 1 second
         }
 
-    
+        // Start the timer when the window loads
         window.onload = function () {
             startTimer(timeLimit);
         };

@@ -5,37 +5,42 @@
 {% block content %}
     <h1>All Quiz Questions</h1>
     
+    <!-- Table to display quiz questions -->
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>#</th>
-                <th>Question Text</th>
-                <th>Options</th>
-                <th>Actions</th>
+                <th>#</th>                  <!-- Serial number -->
+                <th>Question Text</th>      <!-- The text of the question -->
+                <th>Options</th>            <!-- Possible answers for the question -->
+                <th>Actions</th>            <!-- Action buttons for editing or deleting -->
             </tr>
         </thead>
         <tbody>
+            <!-- Loop through each question to display -->
             {% for question in questions %}
                 <tr>
-                    <td>{{ loop.index }}</td>
-                    <td><strong>{{ question.question_text }}</strong></td>
+                    <td>{{ loop.index }}</td>  <!-- Display the question number -->
+                    <td><strong>{{ question.question_text }}</strong></td> <!-- Question text -->
                     <td>
                         <ul>
-                            <li>{{ question.answer_a }}</li>
-                            <li>{{ question.answer_b }}</li>
-                            <li>{{ question.answer_c }}</li>
-                            <li>{{ question.answer_d }}</li>
+                            <li>{{ question.answer_a }}</li>  <!-- First answer option -->
+                            <li>{{ question.answer_b }}</li>  <!-- Second answer option -->
+                            <li>{{ question.answer_c }}</li>  <!-- Third answer option -->
+                            <li>{{ question.answer_d }}</li>  <!-- Fourth answer option -->
                         </ul>
                     </td>
                     <td>
+                        <!-- Form to delete a question -->
                         <form method="POST" action="{{ url_for('main.delete_question', question_id=question.id) }}" style="display:inline;">
                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this question?');">Delete</button>
                         </form>
+                        <!-- Link to edit the question -->
                         <a href="{{ url_for('main.edit_question', question_id=question.id) }}" class="btn btn-warning btn-sm">Edit</a>
                     </td>
                 </tr>
             {% else %}
+                <!-- Message displayed when no questions are available -->
                 <tr>
                     <td colspan="4" class="text-center">No questions available.</td>
                 </tr>
@@ -44,6 +49,7 @@
     </table>
 
     <div>
+        <!-- Button to add a new question -->
         <a href="{{ url_for('main.add_question') }}" class="btn btn-primary">Add New Question</a>
     </div>
 {% endblock %}

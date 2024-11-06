@@ -5,22 +5,30 @@
 {% block content %}
     <div class="container mt-4">
         <h1>Quiz Results</h1>
+        <!-- Display the timestamp of when the quiz was taken -->
         <p><strong>Quiz Taken On:</strong> {{ result.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        <!-- Display the user's score -->
         <h2>You scored {{ result.score }} out of {{ questions_count }}.</h2>
 
         <h2>Question Analysis</h2>
         <ul class="list-group mb-4">
+            <!-- Loop through each question to display the analysis -->
             {% for question in questions %}
                 <li class="list-group-item">
+                    <!-- Display the question text -->
                     <strong>Question:</strong> {{ question.question_text }}<br>
+                    <!-- Display the user's answer by calling a method on the question object -->
                     <strong>Your Answer:</strong> {{ question.user_answer_text(user_answers[question.id|string]) }}<br>
+                    <!-- Display the correct answer -->
                     <strong>Correct Answer:</strong> {{ question.correct_answer_text }}<br>
                 </li>
             {% endfor %}
         </ul>
 
         <div class="redirect-links">
+            <!-- Button to go back to the dashboard -->
             <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+            <!-- Button to retake the quiz -->
             <a href="{{ url_for('main.quiz') }}" class="btn btn-primary">Retake Quiz</a>
         </div>
     </div>

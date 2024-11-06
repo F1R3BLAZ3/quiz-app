@@ -24,3 +24,38 @@
         </div>
     </div>
 {% endblock %}
+{% extends "base.html" %}
+
+{% block title %}Quiz Results History{% endblock %}
+
+{% block content %}
+    <div class="container mt-4">
+        <h1>Your Quiz Results History</h1>
+        
+        <!-- Check if there are any results to display -->
+        {% if results %}
+            <ul class="list-group mb-4">
+                <!-- Loop through each result to display it -->
+                {% for result in results %}
+                    <li class="list-group-item">
+                        <!-- Display the date of the quiz -->
+                        <p><strong>Date:</strong> {{ result.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                        <!-- Display the score and total questions -->
+                        <p><strong>Score:</strong> {{ result.score }} out of {{ result.total_questions }}</p>
+                        <!-- Link to view detailed results -->
+                        <a href="{{ url_for('main.results', result_id=result.id) }}" class="btn btn-info btn-sm">View Details</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <!-- Alert when no quiz results are found -->
+            <div class="alert alert-warning" role="alert">No quiz results found.</div>
+        {% endif %}
+        
+        <!-- Links to navigate back to dashboard or take a quiz -->
+        <div class="redirect-links">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+            <a href="{{ url_for('main.quiz') }}" class="btn btn-primary">Take Quiz</a>
+        </div>
+    </div>
+{% endblock %}

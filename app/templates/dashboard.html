@@ -4,8 +4,11 @@
 
 {% block content %}
     <div class="container mt-4">
+        <!-- Dashboard Header -->
         <h2>Dashboard</h2>
         <p>Welcome, {{ current_user.username }}!</p>
+        
+        <!-- Buttons for Different Actions -->
         <a href="{{ url_for('main.quiz') }}" class="btn btn-primary me-2 mt-2">Take a Quiz</a>
         <a href="{{ url_for('main.results') }}" class="btn btn-secondary me-2 mt-2">View Latest Results</a>
         <a href="{{ url_for('main.add_question') }}" class="btn btn-info me-2 mt-2">Add Question</a>

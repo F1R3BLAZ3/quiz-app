@@ -5,31 +5,46 @@
 {% block content %}
     <div class="container mt-4">
         <h2>Register</h2>
+        
+        <!-- Registration Form -->
         <form method="POST" action="{{ url_for('main.register') }}">
-            {{ form.hidden_tag() }}
+            {{ form.hidden_tag() }}  <!-- CSRF protection -->
+
+            <!-- Username Field -->
             <div class="mb-3">
-                {{ form.username.label(class="form-label") }}
-                {{ form.username(class="form-control", size=32) }}
+                {{ form.username.label(class="form-label") }}  <!-- Username label -->
+                {{ form.username(class="form-control", size=32) }}  <!-- Username input field -->
+                <!-- Display username errors if any -->
                 {% if form.username.errors %}
                     <div class="text-danger">{{ form.username.errors[0] }}</div>
                 {% endif %}
             </div>
+
+            <!-- Password Field -->
             <div class="mb-3">
-                {{ form.password.label(class="form-label") }}
-                {{ form.password(class="form-control", size=32) }}
+                {{ form.password.label(class="form-label") }}  <!-- Password label -->
+                {{ form.password(class="form-control", size=32) }}  <!-- Password input field -->
+                <!-- Display password errors if any -->
                 {% if form.password.errors %}
                     <div class="text-danger">{{ form.password.errors[0] }}</div>
                 {% endif %}
             </div>
+
+            <!-- Password Confirmation Field -->
             <div class="mb-3">
-                {{ form.password2.label(class="form-label") }}
-                {{ form.password2(class="form-control", size=32) }}
+                {{ form.password2.label(class="form-label") }}  <!-- Confirm password label -->
+                {{ form.password2(class="form-control", size=32) }}  <!-- Confirm password input field -->
+                <!-- Display confirmation password errors if any -->
                 {% if form.password2.errors %}
                     <div class="text-danger">{{ form.password2.errors[0] }}</div>
                 {% endif %}
             </div>
+
+            <!-- Submit Button -->
             <button type="submit" class="btn btn-success">Register</button>
         </form>
+        
+        <!-- Link to Login for existing users -->
         <p class="mt-3">Already have an account? <a href="{{ url_for('main.login') }}">Login here</a>.</p>
     </div>
 {% endblock %}
