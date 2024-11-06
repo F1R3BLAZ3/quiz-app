@@ -1,4 +1,21 @@
-__pycache__
+# Byte-compiled and cache files
+__pycache__/
+
+# Environment variables file
 .env
+
+# Python virtual environment folder
+venv/
+
+# Ignore database migration files (if using Flask-Migrate)
+migrations/
+
+# Python cache folders
+app/__pycache__/
+app/services/__pycache__/
+
+# Ignore any file used for bulk additions or testing
 add_quiz_questions.py
-venv
+
+# IDE-specific files (optional, remove if unnecessary)
+.vscode/
