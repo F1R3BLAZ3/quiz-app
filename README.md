@@ -86,13 +86,17 @@ quiz_app/
    ```
 
 4. Set up the environment variables:
-   Create a .env file in the root directory.
-   Add your configuration variables, such as:
-   FLASK_APP=run.py
-   FLASK_ENV=development
-   SECRET_KEY=your_secret_key
 
-5. Initialize the database:
+      Create a .env file in the root directory.
+
+      Add your configuration variables, such as:
+      ```bash
+      FLASK_APP=run.py
+      FLASK_ENV=development
+      SECRET_KEY=your_secret_key
+      ```
+
+6. Initialize the database:
    ```bash
    flask db init
    flask db migrate -m "Initial migration."
