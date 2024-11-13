@@ -59,7 +59,7 @@ quiz_app/
 - **User Authentication**: Users can register, log in, and log out securely.
 - **Quiz Functionality**: Users can attempt a quiz with randomly selected questions.
 - **Scoring and Results**: Scores are calculated and displayed after quiz submission.
-- **Admin Capabilities**: Admins can add, edit, and view quiz questions.
+- **Admin Capabilities**: Admins can add, edit, and view quiz questions. The very first user created in the database will always have admin privileges to ensure that ther is at least one admin
 - **Database Management**: Uses SQLAlchemy for data modeling and Alembic for migrations.
 
 ## Prerequisites
