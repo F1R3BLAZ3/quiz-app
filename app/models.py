@@ -11,11 +11,18 @@ class User(db.Model, UserMixin):
         username (str): The unique username for the user.
         password (str): The hashed password for the user.
         quiz_results (list): The quiz results associated with the user.
+        role (str): The role of the user (either 'user' or 'admin').
     """
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(150), nullable=False)
     quiz_results = db.relationship('QuizResult', backref='user', lazy=True)
+    role = db.Column(db.String(50), nullable=False, default='user')
+
+    @property
+    def is_admin(self):
+        """Check if the user has admin privileges."""
+        return self.role == 'admin'
 
 
 class QuizQuestion(db.Model):

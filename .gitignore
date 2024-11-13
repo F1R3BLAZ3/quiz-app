@@ -16,6 +16,8 @@ app/services/__pycache__/
 
 # Ignore any file used for bulk additions or testing
 add_quiz_questions.py
+instance-2/
+migrations-2/
 
 # IDE-specific files (optional, remove if unnecessary)
 .vscode/

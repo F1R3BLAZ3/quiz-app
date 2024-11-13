@@ -11,7 +11,12 @@
         <!-- Buttons for Different Actions -->
         <a href="{{ url_for('main.quiz') }}" class="btn btn-primary me-2 mt-2">Take a Quiz</a>
         <a href="{{ url_for('main.results') }}" class="btn btn-secondary me-2 mt-2">View Latest Results</a>
-        <a href="{{ url_for('main.add_question') }}" class="btn btn-info me-2 mt-2">Add Question</a>
-        <a href="{{ url_for('main.view_questions') }}" class="btn btn-warning mt-2">View All Questions</a>
+        
+        <!-- Admin actions -->
+        {% if current_user.is_authenticated and current_user.is_admin %}
+            <a href="{{ url_for('main.add_question') }}" class="btn btn-info me-2 mt-2">Add Question</a>
+            <a href="{{ url_for('main.view_questions') }}" class="btn btn-warning me-2 mt-2">View All Questions</a>
+            <a href="{{ url_for('main.register') }}" class="btn btn-success me-2 mt-2">Register a New User</a>
+        {% endif %}
     </div>
 {% endblock %}

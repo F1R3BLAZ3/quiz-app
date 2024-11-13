@@ -46,13 +46,29 @@ def home():
 def register():
     """Handle user registration.
 
-    If the form is validated and submitted, a new user is created.
-    Otherwise, the registration form is displayed.
+    Automatically sets the first registered user as an admin.
+    Allows admin users to assign roles to new users.
 
     Returns:
         str: Rendered HTML for the registration page.
     """
     form = RegistrationForm()
+    is_first_user = User.query.first() is None  # Check if this is the first user
+
+    # If this is the first user, set their role to 'admin'
+    if is_first_user:
+        form.role.data = 'admin'  # Automatically set the role for the first user
+
+    # If not the first user, show the role field only to admins
+    elif current_user.is_authenticated and current_user.role == 'admin':
+        # Let admins choose between 'admin' and 'user' roles for new users
+        form.role.choices = [('user', 'User'), ('admin', 'Admin')]
+    else:
+        # Set a default role for non-admins creating their own accounts
+        form.role.data = 'user'
+        # Disable role selection for non-admin users
+        form.role.render_kw = {'disabled': 'disabled'}
+
     if form.validate_on_submit():
         # Check if the username already exists
         existing_user = User.query.filter_by(
@@ -63,12 +79,15 @@ def register():
             return render_template('register.html', form=form)
 
         # Proceed to create the new user
+        role = form.role.data if form.role else 'user'
         hashed_password = generate_password_hash(form.password.data)
-        user = User(username=form.username.data, password=hashed_password)
+        user = User(username=form.username.data,
+                    password=hashed_password, role=role)
         db.session.add(user)
         db.session.commit()
         flash('Account created!', 'success')
         return redirect(url_for('main.login'))
+
     return render_template('register.html', form=form)
 
 # Login route
@@ -78,8 +97,7 @@ def register():
 def login():
     """Handle user login.
 
-    If the form is validated and the user is authenticated,
-    the user is logged in. Otherwise, an error message is displayed.
+    Verifies the username and password, then logs the user in if credentials are correct.
 
     Returns:
         str: Rendered HTML for the login page.
@@ -104,6 +122,8 @@ def login():
 @login_required
 def logout():
     """Log out the current user.
+
+    Redirects the user to the home page after logging out.
 
     Returns:
         str: Redirect to the home page after logging out.
@@ -132,8 +152,8 @@ def dashboard():
 def quiz():
     """Handle the quiz functionality.
 
-    If the request method is POST, user answers are processed,
-    and results are saved. If GET, a new quiz is generated.
+    If the request method is POST, user answers are processed and results are saved.
+    If GET, a new quiz is generated.
 
     Returns:
         str: Rendered HTML for the quiz page.
@@ -208,13 +228,15 @@ def quiz():
 
     return render_template('quiz.html', questions=questions)
 
+# Results route
+
 
 @main.route('/results')
 @login_required
 def results():
     """Display the quiz results for the current user.
 
-    Results can be fetched based on a result ID passed as a query parameter.
+    Fetches and displays the most recent quiz result or a result by its ID.
 
     Returns:
         str: Rendered HTML for the results page.
@@ -241,14 +263,12 @@ def results():
     questions = QuizQuestion.query.filter(
         QuizQuestion.id.in_(question_ids)).all()
 
-    return render_template(
-        'results.html',
-        user=current_user,
-        result=result,
-        questions_count=result.total_questions,
-        user_answers=user_answers,
-        questions=questions
-    )
+    return render_template('results.html',
+                           user=current_user,
+                           result=result,
+                           questions_count=result.total_questions,
+                           user_answers=user_answers,
+                           questions=questions)
 
 # Results history route
 
@@ -273,13 +293,16 @@ def results_history():
 def add_question():
     """Handle the addition of new quiz questions.
 
-    If the form is validated and submitted,
-    the question is added to the database.
-    Otherwise, the add question form is displayed.
+    Ensures the user is an admin before allowing question addition.
 
     Returns:
         str: Rendered HTML for the add question page.
     """
+    # Ensure the user is an admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
     form = QuestionForm()
     if form.validate_on_submit():
         # Create a new quiz question from form data
@@ -298,17 +321,22 @@ def add_question():
 
     return render_template('add_question.html', form=form)
 
-# Display question route
+# View questions route
 
 
-@main.route('/questions', methods=['GET'])
+@main.route('/questions')
 @login_required
 def view_questions():
-    """Display all quiz questions.
+    """Allow admins to view all quiz questions.
 
     Returns:
-        str: Rendered HTML for the view questions page.
+        str: Rendered HTML to view all quiz questions.
     """
+    # Ensure the user is an admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
     # Retrieve all questions from the database
     questions = QuizQuestion.query.all()
     return render_template('view_questions.html', questions=questions)
@@ -319,14 +347,19 @@ def view_questions():
 @main.route('/delete_question/<int:question_id>', methods=['POST'])
 @login_required
 def delete_question(question_id):
-    """Delete a quiz question by its ID.
+    """Allow admins to delete a quiz question.
 
     Args:
-        question_id (int): The ID of the question to be deleted.
+        question_id (int): The ID of the question to delete.
 
     Returns:
-        str: Redirect to the view questions page after deletion.
+        str: Redirect to the question view page after deletion.
     """
+    # Ensure the user is an admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
     question = QuizQuestion.query.get(question_id)
     if question:
         db.session.delete(question)  # Remove the question from the session
@@ -342,25 +375,30 @@ def delete_question(question_id):
 @main.route('/edit_question/<int:question_id>', methods=['GET', 'POST'])
 @login_required
 def edit_question(question_id):
-    """Edit an existing quiz question.
+    """Allow admins to edit an existing quiz question.
 
     Args:
-        question_id (int): The ID of the question to be edited.
+        question_id (int): The ID of the question to edit.
 
     Returns:
-        str: Rendered HTML for the edit question page.
+        str: Rendered HTML for editing the quiz question.
     """
-    question = QuizQuestion.query.get(question_id)
-    form = QuestionForm(obj=question)  # Populate form with existing data
+    # Ensure the user is an admin
+    if not current_user.is_admin:
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('main.dashboard'))
+
+    question = QuizQuestion.query.get_or_404(question_id)
+    form = QuestionForm(obj=question)
     if form.validate_on_submit():
-        # Update the question with new data from the form
+        # Update the question with form data
         question.question_text = form.question_text.data
         question.answer_a = form.answer_a.data
         question.answer_b = form.answer_b.data
         question.answer_c = form.answer_c.data
         question.answer_d = form.answer_d.data
         question.correct_answer = form.correct_answer.data
-        db.session.commit()  # Commit the changes to the database
+        db.session.commit()
         flash('Question updated successfully!', 'success')
         return redirect(url_for('main.view_questions'))
 

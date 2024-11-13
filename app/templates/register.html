@@ -23,7 +23,7 @@
             <!-- Password Field -->
             <div class="mb-3">
                 {{ form.password.label(class="form-label") }}  <!-- Password label -->
-                {{ form.password(class="form-control", size=32) }}  <!-- Password input field -->
+                {{ form.password(class="form-control", type="password") }}  <!-- Password input field -->
                 <!-- Display password errors if any -->
                 {% if form.password.errors %}
                     <div class="text-danger">{{ form.password.errors[0] }}</div>
@@ -33,15 +33,25 @@
             <!-- Password Confirmation Field -->
             <div class="mb-3">
                 {{ form.password2.label(class="form-label") }}  <!-- Confirm password label -->
-                {{ form.password2(class="form-control", size=32) }}  <!-- Confirm password input field -->
+                {{ form.password2(class="form-control", type="password") }}  <!-- Confirm password input field -->
                 <!-- Display confirmation password errors if any -->
                 {% if form.password2.errors %}
                     <div class="text-danger">{{ form.password2.errors[0] }}</div>
                 {% endif %}
             </div>
 
+            <!-- Role Selection Field (Dropdown) -->
+            <div class="mb-3">
+                {{ form.role.label(class="form-label") }} <!-- Role label -->
+                {{ form.role(class="form-select") }}  <!-- Dropdown selection -->
+                <!-- Display role selection errors if any -->
+                {% if form.role.errors %}
+                    <div class="text-danger">{{ form.role.errors[0] }}</div>
+                {% endif %}
+            </div>
+
             <!-- Submit Button -->
-            <button type="submit" class="btn btn-success">Register</button>
+            <button type="submit" class="btn btn-success mt-3">{{ form.submit() }}</button>
         </form>
         
         <!-- Link to Login for existing users -->
